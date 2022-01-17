@@ -1,6 +1,6 @@
 <dotnetnuke type="Package" version="5.0">
   <packages>
-    <package name="AirAstana.Themes.AirAstana6" type="Skin" version="01.00.19">
+    <package name="AirAstana.Themes.AirAstana6" type="Skin" version="01.00.20">
       <friendlyName>AirAstana6</friendlyName>
       <description>A responsive DNN skin using Bootstrap 3. Requires installation via the Host/Extensions page.</description>
       <owner>
@@ -55,7 +55,7 @@
         </component>
       </components>
     </package>
-    <package name="AirAstana.Themes.Containers.AirAstana6" type="Container" version="01.00.19">
+    <package name="AirAstana.Themes.Containers.AirAstana6" type="Container" version="01.00.20">
       <friendlyName>AirAstana6</friendlyName>
       <description>Containers for the AirAstana6 Skin package.</description>
       <owner>

@@ -547,3 +547,4 @@ ul.aa-navbar-controls li.dropdown.open{
 .aa-w-100{width: 100%;}
 
 #aa-navigation-mobile-root a.aa-display-block, #aa-navigation-mobile-pages-root a.aa-display-block {display: inline-block;}
+.ui-dialog.dnnFormPopup {background: #FFF !important;}
