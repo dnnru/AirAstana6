@@ -94,7 +94,7 @@ namespace AirAstana.Themes.AirAstana6.Components
 
         public static string GetPortalAliasWithLang(int portalId, string langCode)
         {
-            return $"{GetPrimaryPortalUrl(portalId)}/{langCode}";
+            return $"{GetPrimaryPortalUrl(portalId)}/{langCode.ToLower()}";
         }
 
         public static string GetPrimaryPortalUrl(int portalId)
@@ -187,7 +187,7 @@ namespace AirAstana.Themes.AirAstana6.Components
                                                            IsActive = portalInfo.PortalID == currentPortalSettings.PortalId
                                                                    && CultureInfo.CurrentCulture.Name == locale.Code,
                                                            Url = localizedTab != null
-                                                                     ? Globals.NavigateURL(localizedTab.TabID)
+                                                                     ? FixAliasLang(Globals.NavigateURL(localizedTab.TabID), locale.Code)
                                                                      : Globals.AddHTTP(GetPortalAliasWithLang(portalInfo.PortalID, locale.Code))
                                                        };
                         int idx = portalLocale.CultureName.IndexOf("(", StringComparison.InvariantCultureIgnoreCase);
@@ -206,6 +206,33 @@ namespace AirAstana.Themes.AirAstana6.Components
             return portalLocales;
         }
 
+        private static string FixAliasLang(string alias, string lang)
+        {
+            if (string.IsNullOrWhiteSpace(lang))
+            {
+                return alias;
+            }
+
+            if (alias.EndsWith("/"))
+            {
+                alias = alias.Substring(0, alias.Length - 1);
+            }
+
+            string currentLang = "";
+            string[] chunks = alias.Trim().Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            List<string> allCultures = GetAllCultureCodesCached();
+            foreach (string chunk in chunks)
+            {
+                if (allCultures.Contains(chunk.ToLower()))
+                {
+                    currentLang = chunk;
+                    break;
+                }
+            }
+
+            return string.IsNullOrWhiteSpace(currentLang) ? alias : alias.Replace(currentLang, lang.ToLower());
+        }
+
         private static TabInfo GetCurrentTabForLocalization(PortalSettings portalSettings)
         {
             TabInfo tabInfo = portalSettings.ActiveTab;
@@ -220,6 +247,16 @@ namespace AirAstana.Themes.AirAstana6.Components
         private static TabInfo GetLocalizedTab(TabInfo tab, Locale locale)
         {
             return tab == null ? null : TabController.Instance.GetTabByCulture(tab.TabID, tab.PortalID, locale);
+        }
+
+        private static List<string> GetAllCultureCodesCached()
+        {
+            string cacheKey = "AirAstana6-CultureTypes-AllCultures";
+            return DataCache.GetCachedData<List<string>>(new CacheItemArgs(cacheKey, CacheItemPriority.NotRemovable),
+                                                         _ => CultureInfo.GetCultures(CultureTypes.AllCultures)
+                                                                         .Where(c => c.Name.IndexOf("-", StringComparison.Ordinal) > 0)
+                                                                         .Select(c => c.Name.ToLower())
+                                                                         .ToList());
         }
 
         public static List<PortalMenuLinks> GetPortalMenuLinksCached(int portalId)
@@ -302,8 +339,10 @@ namespace AirAstana.Themes.AirAstana6.Components
             {
                 case "kk":
                     return "kazakh";
+
                 case "ru":
                     return "russian";
+
                 default:
                     return "english";
             }
@@ -311,8 +350,8 @@ namespace AirAstana.Themes.AirAstana6.Components
 
         public static string GetCurrentAmadeusLanguageCode()
         {
-            string[] array = new string[8] { "GB", "RU", "DE", "TK", "US", "FR", "KO", "CN" };
-            string[] array2 = new string[8] { "EN", "RU", "DE", "TR", "KK", "FR", "KO", "ZH" };
+            string[] array = new[] { "GB", "RU", "DE", "TK", "US", "FR", "KO", "CN" };
+            string[] array2 = new[] { "EN", "RU", "DE", "TR", "KK", "FR", "KO", "ZH" };
             string value = GetCurrentLanguageCode().ToUpper();
             int num = Array.IndexOf(array2, value);
             if (num > -1 && num < array2.Length)
